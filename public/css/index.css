@@ -1,3 +1,8 @@
-body {
+/* body {
     background-color: aqua;
+} */
+
+td {
+    border: 1px solid black;
+    padding: 10px;
 }
