@@ -2,6 +2,7 @@
 const snake = {
   x: 0,
   y: 0,
+  direction: 'right',
 };
 
 const board = Array(10)
@@ -23,6 +24,7 @@ const displayBoard = () => {
         data += `<td></td>`;
       }
     }
+
     data += `</tr>`;
     total += data;
   }
@@ -36,10 +38,11 @@ function createBoard() {
 }
 
 window.onload = function () {
-  const video = document.body;
-  video.innerHTML = createBoard();
+  const body = document.body;
+  const boardDiv = document.getElementById('board');
+  boardDiv.innerHTML = createBoard();
 
-  video.addEventListener('keydown', (event) => {
+  body.addEventListener('keydown', (event) => {
     const { key } = event;
 
     switch (key) {
@@ -48,7 +51,7 @@ window.onload = function () {
           board[snake.y][snake.x] = 0;
           snake.x += 1;
           board[snake.y][snake.x] = 1;
-          video.innerHTML = createBoard();
+          boardDiv.innerHTML = createBoard();
         }
         break;
       case 'ArrowLeft':
@@ -56,7 +59,7 @@ window.onload = function () {
           board[snake.y][snake.x] = 0;
           snake.x -= 1;
           board[snake.y][snake.x] = 1;
-          video.innerHTML = createBoard();
+          boardDiv.innerHTML = createBoard();
         }
         break;
       case 'ArrowDown':
@@ -64,7 +67,7 @@ window.onload = function () {
           board[snake.y][snake.x] = 0;
           snake.y += 1;
           board[snake.y][snake.x] = 1;
-          video.innerHTML = createBoard();
+          boardDiv.innerHTML = createBoard();
         }
         break;
       case 'ArrowUp':
@@ -72,7 +75,7 @@ window.onload = function () {
           board[snake.y][snake.x] = 0;
           snake.y -= 1;
           board[snake.y][snake.x] = 1;
-          video.innerHTML = createBoard();
+          boardDiv.innerHTML = createBoard();
         }
         break;
     }
