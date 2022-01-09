@@ -1,83 +1,109 @@
-// import { SafeString } from 'hbs';
 const snake = {
-  x: 0,
-  y: 0,
-  direction: 'right',
+  headX: 0,
+  headY: 0,
+  velocityX: 0,
+  velocityY: 0,
+  tail: 0,
+  trail: [],
 };
 
-const board = Array(10)
-  .fill(null)
-  .map(() => Array(10).fill(0));
+let canvas;
+let context;
+let fruit = randomFruitPosition();
+const velocity = 20;
+let gameOver = false;
 
-board[snake.x][snake.y] = 1;
+function randomFruitPosition() {
+  return {
+    x: Math.floor(Math.random() * 25) * 20,
+    y: Math.floor(Math.random() * 25) * 20,
+  };
+}
 
-const displayBoard = () => {
-  const { x, y } = snake;
-  let total = '';
-  for (let j = 0; j < 10; j++) {
-    let data = '<tr>';
+window.onload = init;
 
-    for (let i = 0; i < 10; i++) {
-      if (board[j][i] === 1 && j === y && i === x) {
-        data += `<td class="snake"></td>`;
-      } else {
-        data += `<td></td>`;
+function init() {
+  canvas = document.getElementById('canvas');
+  context = canvas.getContext('2d');
+  document.addEventListener('keydown', update);
+  setInterval(gameLoop, 150);
+}
+
+function update(event) {
+  switch (event.key) {
+    case 'ArrowRight':
+      snake.velocityX = velocity;
+      snake.velocityY = 0;
+      break;
+
+    case 'ArrowLeft':
+      snake.velocityX = -velocity;
+      snake.velocityY = 0;
+      break;
+
+    case 'ArrowDown':
+      snake.velocityX = 0;
+      snake.velocityY = velocity;
+      break;
+
+    case 'ArrowUp':
+      snake.velocityX = 0;
+      snake.velocityY = -velocity;
+      break;
+  }
+}
+
+function gameLoop() {
+  snake.headX += snake.velocityX;
+  snake.headY += snake.velocityY;
+
+  if (
+    snake.headX < 0 ||
+    snake.headX > 500 ||
+    snake.headY < 0 ||
+    snake.headY > 500
+  ) {
+    console.log('GameOver');
+    gameOver = true;
+  }
+
+  if (!gameOver) {
+    // Draw number to the screen
+    context.fillStyle = 'black';
+    context.fillRect(0, 0, 500, 500);
+
+    context.fillStyle = 'red';
+    context.fillRect(fruit.x, fruit.y, 20, 20);
+
+    context.fillStyle = 'yellow';
+    context.fillRect(snake.headX, snake.headY, 20, 20);
+
+    for (var i = 0; i < snake.trail.length; i++) {
+      context.fillStyle = 'green';
+      context.fillRect(snake.trail[i].x, snake.trail[i].y, 20, 20);
+      if (snake.trail[i].x == snake.headX && snake.trail[i].y == snake.headY) {
+        snake.velocityX = snake.velocityY = 0;
+        gameOver = true;
       }
     }
 
-    data += `</tr>`;
-    total += data;
-  }
-  return total;
-};
-
-function createBoard() {
-  return `<table id="board" cellspacing="0">
-    ${displayBoard()}
-  </table>`;
-}
-
-window.onload = function () {
-  const body = document.body;
-  const boardDiv = document.getElementById('board');
-  boardDiv.innerHTML = createBoard();
-
-  body.addEventListener('keydown', (event) => {
-    const { key } = event;
-
-    switch (key) {
-      case 'ArrowRight':
-        if (snake.x + 1 < 10) {
-          board[snake.y][snake.x] = 0;
-          snake.x += 1;
-          board[snake.y][snake.x] = 1;
-          boardDiv.innerHTML = createBoard();
-        }
-        break;
-      case 'ArrowLeft':
-        if (snake.x - 1 >= 0) {
-          board[snake.y][snake.x] = 0;
-          snake.x -= 1;
-          board[snake.y][snake.x] = 1;
-          boardDiv.innerHTML = createBoard();
-        }
-        break;
-      case 'ArrowDown':
-        if (snake.y + 1 < 10) {
-          board[snake.y][snake.x] = 0;
-          snake.y += 1;
-          board[snake.y][snake.x] = 1;
-          boardDiv.innerHTML = createBoard();
-        }
-        break;
-      case 'ArrowUp':
-        if (snake.y - 1 >= 0) {
-          board[snake.y][snake.x] = 0;
-          snake.y -= 1;
-          board[snake.y][snake.x] = 1;
-          boardDiv.innerHTML = createBoard();
-        }
-        break;
+    snake.trail.push({ x: snake.headX, y: snake.headY });
+    while (snake.trail.length > snake.tail) {
+      snake.trail.shift();
     }
-  });
-};
+
+    if (fruit.x === snake.headX && fruit.y === snake.headY) {
+      snake.tail++;
+      fruit = randomFruitPosition();
+    }
+  } else {
+    context.fillStyle = 'red';
+    context.fillRect(150, 175, 200, 150);
+    context.font = '25px Arial';
+    context.fillStyle = 'white';
+    context.fillText('GAME OVER', 175, 260);
+  }
+
+  const score = document.getElementById('score');
+  score.innerHTML = `<h1>${snake.tail}</h1>`;
+}
