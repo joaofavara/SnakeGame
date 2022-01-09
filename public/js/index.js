@@ -12,6 +12,12 @@ let context;
 let fruit = randomFruitPosition();
 const velocity = 20;
 let gameOver = false;
+var rect = {
+  x: 150,
+  y: 175,
+  width: 200,
+  height: 150,
+};
 
 function randomFruitPosition() {
   return {
@@ -20,12 +26,36 @@ function randomFruitPosition() {
   };
 }
 
+function getMousePos(canvas, event) {
+  var rect = canvas.getBoundingClientRect();
+  return {
+    x: event.clientX - rect.left,
+    y: event.clientY - rect.top,
+  };
+}
+function isInside(pos, rect) {
+  return (
+    pos.x > rect.x &&
+    pos.x < rect.x + rect.width &&
+    pos.y < rect.y + rect.height &&
+    pos.y > rect.y
+  );
+}
+
 window.onload = init;
 
 function init() {
   canvas = document.getElementById('canvas');
   context = canvas.getContext('2d');
   document.addEventListener('keydown', update);
+  document.addEventListener('click', (event) => {
+    console.log('event (click): ', event);
+    var mousePos = getMousePos(canvas, event);
+
+    if (isInside(mousePos, rect)) {
+      window.location.reload();
+    }
+  });
   setInterval(gameLoop, 150);
 }
 
@@ -101,9 +131,11 @@ function gameLoop() {
     context.fillRect(150, 175, 200, 150);
     context.font = '25px Arial';
     context.fillStyle = 'white';
-    context.fillText('GAME OVER', 175, 260);
+    context.fillText('GAME OVER', 175, 240);
+    context.font = '18px Arial';
+    context.fillText('Click here to restart', 175, 280);
   }
 
   const score = document.getElementById('score');
-  score.innerHTML = `<h1>${snake.tail}</h1>`;
+  score.innerHTML = `<span>${snake.tail}</span>`;
 }
